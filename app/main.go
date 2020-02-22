@@ -39,7 +39,11 @@ func main() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	defer signal.Stop(quit)
 
-	l2, err := c.RequestLine(rpi.GPIO15, gpiod.WithRisingEdge(func(evt gpiod.LineEvent) { gasUsage.Inc() }))
+	l2, err := c.RequestLine(
+		rpi.GPIO2,
+		gpiod.WithPullDown,
+		gpiod.WithRisingEdge(func(evt gpiod.LineEvent) { gasUsage.Inc() }),
+	)
 	if err != nil {
 		panic(err)
 	}
