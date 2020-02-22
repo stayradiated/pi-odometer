@@ -41,8 +41,8 @@ func main() {
 	defer signal.Stop(quit)
 
 	l2, err := c.RequestLine(
-		rpi.GPIO2,
-		gpiod.WithRisingEdge(func(evt gpiod.LineEvent) {
+		rpi.GPIO26,
+		gpiod.WithBothEdges(func(evt gpiod.LineEvent) {
 			gasUsage.Inc()
 			if evt.Type == gpiod.LineEventRisingEdge {
 				log.Println("RisingEdge")
