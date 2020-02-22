@@ -41,7 +41,6 @@ func main() {
 
 	l2, err := c.RequestLine(
 		rpi.GPIO2,
-		gpiod.WithPullDown,
 		gpiod.WithRisingEdge(func(evt gpiod.LineEvent) { gasUsage.Inc() }),
 	)
 	if err != nil {
