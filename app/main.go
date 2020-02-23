@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -26,6 +27,20 @@ func init() {
 	prometheus.MustRegister(gasUsage)
 }
 
+func debounce(interval time.Duration, input chan gpiod.LineEvent, f func(evt gpiod.LineEvent)) {
+	var (
+		evt gpiod.LineEvent
+	)
+	for {
+		select {
+		case evt = <-input:
+			continue
+		case <-time.After(interval):
+			f(evt)
+		}
+	}
+}
+
 func main() {
 	flag.Parse()
 
@@ -40,16 +55,20 @@ func main() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	defer signal.Stop(quit)
 
+	spammyChan := make(chan gpiod.LineEvent, 10)
+
+	go debounce(1000*time.Millisecond, spammyChan, func(evt gpiod.LineEvent) {
+		gasUsage.Inc()
+		if evt.Type == gpiod.LineEventRisingEdge {
+			log.Println("RisingEdge")
+		} else if evt.Type == gpiod.LineEventFallingEdge {
+			log.Println("FallingEdge")
+		}
+	})
+
 	l2, err := c.RequestLine(
 		rpi.GPIO26,
-		gpiod.WithBothEdges(func(evt gpiod.LineEvent) {
-			gasUsage.Inc()
-			if evt.Type == gpiod.LineEventRisingEdge {
-				log.Println("RisingEdge")
-			} else if evt.Type == gpiod.LineEventFallingEdge {
-				log.Println("FallingEdge")
-			}
-		}),
+		gpiod.WithBothEdges(func(evt gpiod.LineEvent) { spammyChan <- evt }),
 	)
 	if err != nil {
 		panic(err)
