@@ -27,16 +27,17 @@ func init() {
 	prometheus.MustRegister(gasUsage)
 }
 
-func debounce(interval time.Duration, input chan gpiod.LineEvent, f func(evt gpiod.LineEvent)) {
-	var (
-		evt gpiod.LineEvent
-	)
+func debounce(interval time.Duration, input chan gpiod.LineEvent, cb func(evt gpiod.LineEvent)) {
+	var evt gpiod.LineEvent
+	timer := time.NewTimer(interval)
 	for {
 		select {
 		case evt = <-input:
-			log.Println("received event")
-		case <-time.After(interval):
-			f(evt)
+			timer.Reset(interval)
+		case <-timer.C:
+			if evt.Type == gpiod.LineEventRisingEdge || evt.Type == gpiod.LineEventFallingEdge {
+				cb(evt)
+			}
 		}
 	}
 }
