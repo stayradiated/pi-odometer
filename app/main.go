@@ -34,7 +34,7 @@ func debounce(interval time.Duration, input chan gpiod.LineEvent, f func(evt gpi
 	for {
 		select {
 		case evt = <-input:
-			continue
+			log.Println("received event")
 		case <-time.After(interval):
 			f(evt)
 		}
