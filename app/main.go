@@ -35,6 +35,7 @@ func debounce(interval time.Duration, input chan gpiod.LineEvent, cb func(evt gp
 		case evt = <-input:
 			timer.Reset(interval)
 		case <-timer.C:
+			log.Println(evt.Type)
 			if evt.Type == gpiod.LineEventRisingEdge || evt.Type == gpiod.LineEventFallingEdge {
 				cb(evt)
 			}
@@ -61,9 +62,9 @@ func main() {
 	go debounce(1000*time.Millisecond, spammyChan, func(evt gpiod.LineEvent) {
 		if evt.Type == gpiod.LineEventRisingEdge {
 			log.Println("RisingEdge")
-			gasUsage.Inc()
 		} else if evt.Type == gpiod.LineEventFallingEdge {
 			log.Println("FallingEdge")
+			gasUsage.Inc()
 		}
 	})
 
