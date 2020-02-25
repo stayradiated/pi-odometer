@@ -60,9 +60,7 @@ func main() {
 
 	go debounce(1000*time.Millisecond, spammyChan, func(evt gpiod.LineEvent) {
 		if evt.Type == gpiod.LineEventRisingEdge {
-			log.Println("RisingEdge")
-		} else if evt.Type == gpiod.LineEventFallingEdge {
-			log.Println("FallingEdge")
+			log.Println("Incrementing gas usage")
 			gasUsage.Inc()
 		}
 	})
