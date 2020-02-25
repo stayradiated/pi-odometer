@@ -35,7 +35,6 @@ func debounce(interval time.Duration, input chan gpiod.LineEvent, cb func(evt gp
 		case evt = <-input:
 			timer.Reset(interval)
 		case <-timer.C:
-			log.Println(evt.Type)
 			if evt.Type == gpiod.LineEventRisingEdge || evt.Type == gpiod.LineEventFallingEdge {
 				cb(evt)
 			}
@@ -70,7 +69,10 @@ func main() {
 
 	l2, err := c.RequestLine(
 		rpi.GPIO2,
-		gpiod.WithBothEdges(func(evt gpiod.LineEvent) { spammyChan <- evt }),
+		gpiod.WithBothEdges(func(evt gpiod.LineEvent) {
+			log.Println(evt.Type)
+			spammyChan <- evt
+		}),
 	)
 	if err != nil {
 		panic(err)
