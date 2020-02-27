@@ -4,9 +4,6 @@ import (
 	"flag"
 	"log"
 	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -35,7 +32,7 @@ func debounce(interval time.Duration, input chan gpiod.LineEvent, cb func(evt gp
 		case evt = <-input:
 			timer.Reset(interval)
 		case <-timer.C:
-			if evt.Type == gpiod.LineEventRisingEdge || evt.Type == gpiod.LineEventFallingEdge {
+			if evt.Type > 0 {
 				cb(evt)
 			}
 		}
@@ -51,22 +48,17 @@ func main() {
 	}
 	defer c.Close()
 
-	// capture exit signals to ensure pin is reverted to input on exit.
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	defer signal.Stop(quit)
-
 	spammyChan := make(chan gpiod.LineEvent, 10)
 
-	go debounce(1000*time.Millisecond, spammyChan, func(evt gpiod.LineEvent) {
+	go debounce(500*time.Millisecond, spammyChan, func(evt gpiod.LineEvent) {
 		if evt.Type == gpiod.LineEventRisingEdge {
-			log.Println("Incrementing gas usage")
+			log.Println("gas++")
 			gasUsage.Inc()
 		}
 	})
 
 	l2, err := c.RequestLine(
-		rpi.GPIO2,
+		rpi.GPIO26,
 		gpiod.WithBothEdges(func(evt gpiod.LineEvent) {
 			log.Println(evt.Type)
 			spammyChan <- evt
