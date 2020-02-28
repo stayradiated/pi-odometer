@@ -62,7 +62,7 @@ func main() {
 
 	debounceGasChan := make(chan gpiod.LineEvent, 10)
 
-	go debounce(500*time.Millisecond, debounceGasChan, func(evt gpiod.LineEvent) {
+	go debounce(1000*time.Millisecond, debounceGasChan, func(evt gpiod.LineEvent) {
 		log.Println("gasUsage.Inc()")
 		gasUsage.Inc()
 	})
