@@ -20,8 +20,20 @@ var gasUsage = prometheus.NewGauge(prometheus.GaugeOpts{
 	Help: "Units of gas used",
 })
 
+var gasSwitchRise = prometheus.NewGauge(prometheus.GaugeOpts{
+	Name: "gas_switch_rise",
+	Help: "Count of times the switch line has risen",
+})
+
+var gasSwitchFall = prometheus.NewGauge(prometheus.GaugeOpts{
+	Name: "gas_switch_fall",
+	Help: "Count of times the switch line has fallen",
+})
+
 func init() {
 	prometheus.MustRegister(gasUsage)
+	prometheus.MustRegister(gasSwitchRise)
+	prometheus.MustRegister(gasSwitchFall)
 }
 
 func debounce(interval time.Duration, input chan gpiod.LineEvent, cb func(evt gpiod.LineEvent)) {
@@ -48,28 +60,30 @@ func main() {
 	}
 	defer c.Close()
 
-	spammyChan := make(chan gpiod.LineEvent, 10)
+	debounceGasChan := make(chan gpiod.LineEvent, 10)
 
-	go debounce(500*time.Millisecond, spammyChan, func(evt gpiod.LineEvent) {
+	go debounce(500*time.Millisecond, debounceGasChan, func(evt gpiod.LineEvent) {
 		log.Println("gasUsage.Inc()")
 		gasUsage.Inc()
 	})
 
-	l2, err := c.RequestLine(
+	line, err := c.RequestLine(
 		rpi.GPIO26,
 		gpiod.WithBothEdges(func(evt gpiod.LineEvent) {
 			if evt.Type == gpiod.LineEventRisingEdge {
 				log.Println("+++")
-				spammyChan <- evt
+				gasSwitchRise.Inc()
+				debounceGasChan <- evt
 			} else if evt.Type == gpiod.LineEventFallingEdge {
 				log.Println("---")
+				gasSwitchFall.Inc()
 			}
 		}),
 	)
 	if err != nil {
 		panic(err)
 	}
-	defer l2.Close()
+	defer line.Close()
 
 	http.Handle("/metrics", promhttp.Handler())
 	http.ListenAndServe(*addr, nil)
