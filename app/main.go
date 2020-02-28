@@ -51,17 +51,19 @@ func main() {
 	spammyChan := make(chan gpiod.LineEvent, 10)
 
 	go debounce(500*time.Millisecond, spammyChan, func(evt gpiod.LineEvent) {
-		if evt.Type == gpiod.LineEventRisingEdge {
-			log.Println("gas++")
-			gasUsage.Inc()
-		}
+		log.Println("gasUsage.Inc()")
+		gasUsage.Inc()
 	})
 
 	l2, err := c.RequestLine(
 		rpi.GPIO26,
 		gpiod.WithBothEdges(func(evt gpiod.LineEvent) {
-			log.Println(evt.Type)
-			spammyChan <- evt
+			if evt.Type == gpiod.LineEventRisingEdge {
+				log.Println("+++")
+				spammyChan <- evt
+			} else if evt.Type == gpiod.LineEventFallingEdge {
+				log.Println("---")
+			}
 		}),
 	)
 	if err != nil {
