@@ -31,6 +31,7 @@ var gasSwitchFall = prometheus.NewGauge(prometheus.GaugeOpts{
 })
 
 func init() {
+	log.SetFlags(log.Ldate | log.Ltime | log.Lmicroseconds)
 	prometheus.MustRegister(gasUsage)
 	prometheus.MustRegister(gasSwitchRise)
 	prometheus.MustRegister(gasSwitchFall)
