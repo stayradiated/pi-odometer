@@ -20,37 +20,15 @@ var gasUsage = prometheus.NewGauge(prometheus.GaugeOpts{
 	Help: "Units of gas used",
 })
 
-var gasSwitchRise = prometheus.NewGauge(prometheus.GaugeOpts{
-	Name: "gas_switch_rise",
-	Help: "Count of times the switch line has risen",
-})
-
-var gasSwitchFall = prometheus.NewGauge(prometheus.GaugeOpts{
-	Name: "gas_switch_fall",
-	Help: "Count of times the switch line has fallen",
-})
-
 func init() {
 	log.SetFlags(log.Ldate | log.Ltime | log.Lmicroseconds)
 	prometheus.MustRegister(gasUsage)
-	prometheus.MustRegister(gasSwitchRise)
-	prometheus.MustRegister(gasSwitchFall)
 }
 
-func debounce(interval time.Duration, input chan gpiod.LineEvent, cb func(evt gpiod.LineEvent)) {
-	var evt gpiod.LineEvent
-	timer := time.NewTimer(interval)
-	for {
-		select {
-		case evt = <-input:
-			timer.Reset(interval)
-		case <-timer.C:
-			if evt.Type > 0 {
-				cb(evt)
-			}
-		}
-	}
-}
+const (
+	LOW  = 1 << iota
+	HIGH = 1 << iota
+)
 
 func main() {
 	flag.Parse()
@@ -61,24 +39,32 @@ func main() {
 	}
 	defer c.Close()
 
-	debounceGasChan := make(chan gpiod.LineEvent, 10)
-
-	go debounce(1000*time.Millisecond, debounceGasChan, func(evt gpiod.LineEvent) {
-		log.Println("gasUsage.Inc()")
-		gasUsage.Inc()
-	})
+	pastState := LOW
+	pastDate := time.Now()
 
 	line, err := c.RequestLine(
 		rpi.GPIO26,
 		gpiod.WithBothEdges(func(evt gpiod.LineEvent) {
+			date := time.Now()
+			diff := date.Sub(pastDate)
+
+			var state int
+
 			if evt.Type == gpiod.LineEventRisingEdge {
 				log.Println("+++")
-				gasSwitchRise.Inc()
-				debounceGasChan <- evt
+				state = HIGH
 			} else if evt.Type == gpiod.LineEventFallingEdge {
 				log.Println("---")
-				gasSwitchFall.Inc()
+				state = LOW
 			}
+
+			if diff.Milliseconds() > 500 && pastState == HIGH && state == LOW {
+				log.Println("gasUsage.Inc()")
+				gasUsage.Inc()
+			}
+
+			pastState = state
+			pastDate = date
 		}),
 	)
 	if err != nil {
