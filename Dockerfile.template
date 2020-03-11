@@ -1,8 +1,8 @@
 FROM balenalib/%%BALENA_MACHINE_NAME%%-golang:latest-build AS build
-WORKDIR /go/src/github.com/stayradiated/gastly/app
+WORKDIR /go/src/app
 COPY /app ./
 RUN go get -v && go build
 
 FROM balenalib/%%BALENA_MACHINE_NAME%%-debian:stretch
-COPY --from=build /go/src/github.com/stayradiated/gastly/app/ .
+COPY --from=build /go/src/app .
 CMD ./app --listen-address ":80"
