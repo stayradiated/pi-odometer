@@ -103,8 +103,8 @@ This is my Grafana dashboard.
 
 **Gas Usage**
 
-- How much gas used over the selected time period, and how much that gas cost
-  us (broken into the variable and fixed charges).
+How much gas used over the selected time period, and how much that gas cost us
+(broken into the variable and fixed charges).
 
 **Gas Usage over 24 hours**
 
@@ -121,7 +121,9 @@ a signal from the gas meter.
 
 **Total Gas Used**
 
-Shows how long it takes us to use a cubic meter of gas (about 10 hours!)
+Shows how long it takes us to use a cubic meter of gas (about 10 hours!). Also
+useful for checking the accuracy by comparing rate of change to the physical
+meter.
 
 ![Grafana Dashboard](./assets/dashboard.jpg)
 
