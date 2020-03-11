@@ -42,3 +42,37 @@ git clone https://github.com/stayradiated/pi-odometer
 cd pi-odometer
 balena push <your-project-name>
 ```
+
+## Prometheus Config
+
+I am using Docker Compose to launch Prometheus & Grafana.
+
+### `docker-compose.yml`
+
+```yaml
+version: "3"
+services:
+  prom:
+    image: prom/prometheus
+    volumes:
+     - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    command: "--config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus"
+    ports:
+     - 9090:9090
+  grafana:
+    image: grafana/grafana
+    ports:
+     - "3000:3000"
+    depends_on:
+      - prom
+```
+
+### `prometheus.yml`
+
+```yaml
+scrape_configs:
+  - job_name: 'pi-odometer'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['192.168.0.14'] # replace with the IP address of your Pi
+```
