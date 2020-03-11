@@ -63,9 +63,10 @@ cd pi-odometer
 balena push <your-project-name>
 ```
 
-## Prometheus Config
+## Prometheus Server
 
-I am using Docker Compose to launch Prometheus & Grafana.
+Along with Pi, you will need another computer to run Prometheus server. I
+recommend using Docker Compose for this.
 
 ### `docker-compose.yml`
 
@@ -97,7 +98,7 @@ scrape_configs:
       - targets: ['192.168.0.14'] # replace with the IP address of your Pi
 ```
 
-### My Grafana Dashboard
+## Grafana Dashboard
 
 This is my Grafana dashboard.
 
