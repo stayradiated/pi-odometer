@@ -101,20 +101,25 @@ scrape_configs:
 
 This is my Grafana dashboard.
 
-**Usage over 24 hours**
+**Gas Usage**
+
+- How much gas used over the selected time period, and how much that gas cost
+  us (broken into the variable and fixed charges).
+
+**Gas Usage over 24 hours**
 
 Shows how much gas we are using on a daily basis. 
 
-- Usage over 15 minutes
+**Gas Usage over 15 minutes**
 
 Shows when a large amount of gas is used, such as when someone has a shower
 
-- Realtime
+**Realtime**
 
 This is usage over the last 30 seconds, useful for seeing when the Pi picked up
 a signal from the gas meter.
 
-- Total gas used
+**Total Gas Used**
 
 Shows how long it takes us to use a cubic meter of gas (about 10 hours!)
 
