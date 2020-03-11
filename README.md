@@ -100,7 +100,8 @@ scrape_configs:
 
 ## Grafana Dashboard
 
-This is my Grafana dashboard.
+This is my Grafana dashboard. You don't use have to use it, it's just to give
+you an idea of what's possible.
 
 **Gas Usage**
 
