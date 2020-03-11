@@ -1,4 +1,4 @@
-![Odometer](./odometer.png)
+![Odometer](./assets/odometer.png)
 
 > Monitor a Gas or Water Odometer with a Raspberry Pi
 
@@ -6,11 +6,12 @@
 
 It is a small program, written in Go that is designed to run on a Raspberry Pi.
 
-It starts a web server on port 8080 that serves up Prometheus metrics at
-`/metrics`. You can then use Prometheus & Grafana to track your water or gas
-usage.
+It starts a web server that serves up Prometheus metrics at `/metrics`. You can
+then use Prometheus & Grafana to track your water or gas usage.
 
-![Grafana Dashboard](./grafana.jpg)
+The metric is called `gas_usage`.
+
+![Grafana Dashboard](./assets/grafana.jpg)
 
 ## How do I use this?
 
@@ -18,13 +19,13 @@ You will need to connect [GPIO Pin 26](https://pinout.xyz/pinout/pin37_gpio26)
 a [reed switch](https://en.wikipedia.org/wiki/Reed_switch) to the 3v pin, as
 well as a pull-down resistor to ground.
 
-![circuit sketch](./sketch.jpg)
+![circuit sketch](./assets/sketch.jpg)
 
 Then place the reed switch below the "fastest" barrel of your gas/water
 odometer. On most meters, this barrel has a magnet embedded inside it that will
 trigger the reed switch to close and complete the circuit.
 
-![Reed Switch](./reed_switch.jpg)
+![Reed Switch](./assets/reed_switch.jpg)
 
 ## Deploy To Balena
 
