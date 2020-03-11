@@ -4,6 +4,7 @@ import (
 	"flag"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -15,14 +16,22 @@ import (
 
 var addr = flag.String("listen-address", ":8080", "The address to listen on for HTTP requests.")
 
-var gasUsage = prometheus.NewGauge(prometheus.GaugeOpts{
-	Name: "gas_usage",
-	Help: "Units of gas used",
+func getEnv(key string, defaultVal string) string {
+	if value, exists := os.LookupEnv(key); exists {
+		return value
+	}
+
+	return defaultVal
+}
+
+var odometerGauge = prometheus.NewGauge(prometheus.GaugeOpts{
+	Name: getEnv("GAUGE_NAME", "odometer"),
+	Help: getEnv("GAUGE_DESCRIPTION", "Number of times the odometer has cycled."),
 })
 
 func init() {
 	log.SetFlags(log.Ldate | log.Ltime | log.Lmicroseconds)
-	prometheus.MustRegister(gasUsage)
+	prometheus.MustRegister(odometerGauge)
 }
 
 const (
@@ -59,8 +68,8 @@ func main() {
 			}
 
 			if diff.Milliseconds() > 500 && pastState == HIGH && state == LOW {
-				log.Println("gasUsage.Inc()")
-				gasUsage.Inc()
+				log.Println("odometerGauge.Inc()")
+				odometerGauge.Inc()
 			}
 
 			pastState = state

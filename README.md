@@ -9,7 +9,11 @@ It is a small program, written in Go that is designed to run on a Raspberry Pi.
 It starts a web server that serves up Prometheus metrics at `/metrics`. You can
 then use Prometheus & Grafana to track your water or gas usage.
 
-The metric is called `gas_usage`.
+The metric is called `odometer` by default, but can be configured using
+an environment variable.
+
+Every time the "fastest" barrel makes one revolution, the Prometheus gauge will
+increase by 1.
 
 ![Grafana Dashboard](./assets/grafana.jpg)
 
@@ -26,6 +30,21 @@ odometer. On most meters, this barrel has a magnet embedded inside it that will
 trigger the reed switch to close and complete the circuit.
 
 ![Reed Switch](./assets/reed_switch.jpg)
+
+## Environment Variables
+
+### `GAUGE_NAME`
+
+The name of the Prometheus metric.
+
+Default value: `odometer`.
+
+### `GAUGE_DESCRIPTION`
+
+The description of the Prometheus metric. Not particularly important, but
+useful if you have a lot of different metrics. 
+
+Default value: `Number of times the odometer has cycled.`.
 
 ## Deploy To Balena
 

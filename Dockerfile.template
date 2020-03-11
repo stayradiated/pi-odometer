@@ -5,4 +5,4 @@ RUN go get -v && go build
 
 FROM balenalib/%%BALENA_MACHINE_NAME%%-debian:stretch
 COPY --from=build /go/src/github.com/stayradiated/gastly/app/ .
-CMD ./app --listen-address :80
+CMD ./app --listen-address ":80"
