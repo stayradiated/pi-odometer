@@ -6,7 +6,11 @@
 
 It is a small program, written in Go that is designed to run on a Raspberry Pi.
 
-It starts a Prometheus server on port 8080.
+It starts a web server on port 8080 that serves up Prometheus metrics at
+`/metrics`. You can then use Prometheus & Grafana to track your water or gas
+usage.
+
+![Grafana Dashboard](./grafana.jpg)
 
 ## How do I use this?
 
